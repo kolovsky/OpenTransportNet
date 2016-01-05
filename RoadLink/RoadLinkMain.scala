@@ -1,7 +1,7 @@
 package OTN_RoadLink.OpenTransportNet.RoadLink
 
 /**
- * Created by Bery on 27.8.2015.
+ * Created by Beran on 27.8.2015.
  */
 object RoadLinkMain {
 
@@ -11,9 +11,9 @@ object RoadLinkMain {
 
 
     matrix.loadMatrixVariation("Variation.csv")
-    matrix.loadMatrix("RoadLink.csv")
+    matrix.loadMatrix("RoadLinkLiberec.csv")
 
-    matrix.createTrafficVolume()
+    //matrix.createTrafficVolume()
 
     //matrix.printTrafficVolumeMatrix(1, 6)
   }
