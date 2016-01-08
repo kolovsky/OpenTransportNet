@@ -8,83 +8,72 @@ import java.util.Calendar
  */
 class RoadLinkTransport ()     {
 
-  //val roadLink = new Array[Array[String]](20)
-  val variation = new Array[Array[String]](24)
+  val variation = new Array[Array[String]](43) /** nacitam matici variaci pro parametry k vypoctum*/
 
-  var trafficVolume = new Array[Array[String]](2 + (1 * 24))
-  var j = 0
+  var trafficVolume = new Array[Array[String]](2 + (1 * 24)) /** matice Traffic Volume pro jeden prvek RoadLink */
 
+  var idParameter = 1
 
-  def loadMatrix (fileName: String) : Any = {
+  /**
+   *
+   * @param fileName    nazev souboru csv s nacitanou matici RoadLink
+   *
+   * Nacte postupne kazdy radek matice RoadLink do pameti a pomoci metody processFeature jej zpracuje.
+   */
+  def loadMatrix (fileName: String) = {
 
     val source = io.Source.fromFile(fileName)
 
-    for  (linie <- source.getLines) {
-      val radek = linie.split(";").map(_.trim).map(_.replaceFirst("," , "."))//.map(_.toDouble)
+    for  (line <- source.getLines) {
+      val lineSegment = line.split(";").map(_.trim).map(_.replaceFirst("," , "."))//.map(_.toDouble)
 
-      trafficVolume = processFeature(radek)
+      trafficVolume = processFeature(lineSegment)
 
-      if (j == 0) printMatrix(trafficVolume, (24*7)+1, 6 )
-      //roadLink (j) = radek
-      j += 1
+      if (idParameter <= 170) printMatrix(trafficVolume, (24*7)+1, 6 )
+
     }
     source.close
   }
 
+  /**
+   *
+   * @param lineSegment                   jeden radek matice RoadLink
+   * @return trafficVolumeSingleFeature   vysledna matice TrafficVolume pro jeden prvek RoadLink
+   *
+   * Vypocte pomoci matice Variation vsechny varianty dnu v tydnu a hodin v nich
+   *
+   * Zatim je vsechno povazovano za dalnici.
+   * Zatim je vsechno povazovano za zimu.
+   */
   def processFeature (lineSegment: Array [String] ) : Array[Array[String]] = {
 
-    //println("TESTING METHOD")
+    var trafficVolumeSingleFeature = new Array[Array[String]]((1*24*7)+2) // zaklada matici Traffic Volume pro jeden prvek RoadLink
 
-    val trafficVolumeSinfleFeature = new Array[Array[String]]((1*24*7)+2)
-
-    val firstRow = new Array[String](7)
-    firstRow(0) = "ID"
-    firstRow(1) = "inspireID"
-    firstRow(2) = "trafficVolume"
-    firstRow(3) = "trafficVolumeTimePeriod"
-    firstRow(4) = "fromTime"
-    firstRow(5) = "toTime"
-    firstRow(6) = "vehicleType"
-
-    trafficVolumeSinfleFeature(0) = firstRow
-
-    val secondRow = new Array[String](7)
-
-    secondRow(0) = "0"
-    secondRow(1) = lineSegment (0)
-    secondRow(2) = lineSegment (25)
-    secondRow(3) = "day"
-    secondRow(4) = "fromTime"
-    secondRow(5) = "toTime"
-    secondRow(6) = "vehicleType"
-
-    trafficVolumeSinfleFeature(1) = secondRow
+    trafficVolumeSingleFeature = createFirstRow(trafficVolumeSingleFeature)
+    trafficVolumeSingleFeature = createSecondRow(lineSegment, trafficVolumeSingleFeature)
 
     val dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     var dateTime = dateFormat.parse("2016-01-04 00:00:00")
 
-    //dateFrom.setHours(1)
-    //println(dateFormat.format(dateFrom))
-
     var sumTrafficVolumeCheck: Double = 0
 
+    idParameter += 1
     for (i <- 1 to (1*24*7) ){
       val nextRow = new Array[String](7)
 
-      nextRow(0) = i.toString
+      nextRow(0) = idParameter.toString
+      idParameter += 1
       nextRow(1) = lineSegment (0)
 
-      var hourOfDay: Int = 0
-      if (i%24 == 0) hourOfDay = 24-1
-      else hourOfDay = (i%24)-1
+      val hourOfDay2: Int = dateTime.getHours
+      var dayOfWeek2: Int = dateTime.getDay
 
-      var dayOfWeek: Int = 0
-      if ((i/24) -((i-1)/24) == 1 ) dayOfWeek = (i-1)/24
-      else dayOfWeek = i/24
+      if (dayOfWeek2 == 0) dayOfWeek2 = 8
+      else dayOfWeek2 += 1
 
-      val trafficVolumeHour: Double = lineSegment (25).toDouble * (variation(1)(dayOfWeek).toDouble*variation(2)(hourOfDay).toDouble/100)
+      val trafficVolumeHour: Double = lineSegment (25).toDouble * (variation(29)(dayOfWeek2).toDouble/100*variation(20)(hourOfDay2 + 1).toDouble/100)
 
-      sumTrafficVolumeCheck = sumTrafficVolumeCheck + trafficVolumeHour
+      sumTrafficVolumeCheck = sumTrafficVolumeCheck + trafficVolumeHour // zkouska vypoctu
 
       nextRow(2) = trafficVolumeHour.toString
       nextRow(3) = "hour"
@@ -96,92 +85,96 @@ class RoadLinkTransport ()     {
       dateTime = cal.getTime
 
       nextRow(5) = dateFormat.format(dateTime)
-      nextRow(6) = "vehicleType"
+      nextRow(6) = "allVehicles"
 
-      trafficVolumeSinfleFeature(i+1) = nextRow
+      trafficVolumeSingleFeature(i+1) = nextRow
     }
-    //println(sumTrafficValumeCheck)
-
-
-
-    trafficVolumeSinfleFeature
+    println("sumTrafficVolumeCheck: " + sumTrafficVolumeCheck/lineSegment(25).toDouble) //sumu vypoctu vydelim trafficVolume pro jeden prumerny den a mel bych dostat 7 (dnu v tydnu) (28 (dny v tydnu krat 4 mesice))
+    trafficVolumeSingleFeature
   }
 
-
-  def loadMatrixVariation (fileName: String) : Any = {
-
-    val source = io.Source.fromFile(fileName)
-
-    var i = 0
-    for  (linie <- source.getLines) {
-      val radek = linie.split(";").map(_.trim).map(_.replaceFirst("," , "."))//.map(_.toDouble)
-      variation (i) = radek
-      i += 1
-    }
-    source.close
-  }
-
-  /*def createTrafficVolume () : Any = {
-
-    val dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-
-    var dateFrom = dateFormat.parse("2016-01-04 00:00:00")
-
-
-
-    //println(dateFrom)
-
-   println(dateFormat.format(dateFrom))
-
-    dateFrom.setHours(1)
-
-    println(dateFormat.format(dateFrom))
-
-    var cal = Calendar.getInstance()
-    cal.setTime(dateFrom)
-    cal.add(Calendar.HOUR_OF_DAY, 22)
-    dateFrom = cal.getTime()
-
-    println(dateFormat.format(dateFrom))
-
-    cal.setTime(dateFrom)
-    cal.add(Calendar.HOUR_OF_DAY, 1)
-    dateFrom = cal.getTime()
-
-    println(dateFormat.format(dateFrom))
+  /**
+   *
+   * @param trafficVolumeSingleFeature
+   *
+   * Vytvori prvni radek s pojmenovanim atributu.
+   */
+  def createFirstRow (trafficVolumeSingleFeature: Array[Array[String]] ) : Array[Array[String]] = {
 
     val firstRow = new Array[String](7)
     firstRow(0) = "ID"
-    firstRow(1) = "inspireID"
+    firstRow(1) = "roadLinkID"
     firstRow(2) = "trafficVolume"
     firstRow(3) = "trafficVolumeTimePeriod"
     firstRow(4) = "fromTime"
     firstRow(5) = "toTime"
     firstRow(6) = "vehicleType"
 
-      trafficVolume(0) = firstRow
+    trafficVolumeSingleFeature(0) = firstRow
+
+    trafficVolumeSingleFeature
+  }
+
+  /**
+   *
+   * @param lineSegment
+   * @param trafficVolumeSingleFeature
+   *
+   * Vytvori druhy radek s trafficVolume z puvodni tabulky RoadLink a tedy intenzitou pro cely den - toTime a fromTime odpovidaji 1.1. 2000
+   */
+  def createSecondRow (lineSegment: Array[String] , trafficVolumeSingleFeature: Array[Array[String]] ) : Array[Array[String]] = {
 
     val secondRow = new Array[String](7)
+    val dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    var dateTime = dateFormat.parse("2000-01-01 00:00:00")
 
-    secondRow(0) = "0"
-    secondRow(1) = roadLink (1)(0)
-    secondRow(2) = roadLink (1) (2)
+    secondRow(0) = idParameter.toString
+    secondRow(1) = lineSegment (0)
+    secondRow(2) = lineSegment (25)
     secondRow(3) = "day"
-    secondRow(4) = "fromTime"
-    secondRow(5) = "toTime"
-    secondRow(6) = "vehicleType"
+    secondRow(4) = dateFormat.format(dateTime)
 
-    trafficVolume(1) = secondRow
+    val cal = Calendar.getInstance()
+    cal.setTime(dateTime)
+    cal.add(Calendar.DAY_OF_WEEK, 1)
+    dateTime = cal.getTime
 
-    
+    secondRow(5) = dateFormat.format(dateTime)
+    secondRow(6) = "allVehicles"
 
-  }*/
+    trafficVolumeSingleFeature(1) = secondRow
 
+    trafficVolumeSingleFeature
+  }
+
+  /**
+   *
+   * @param fileName nazev souboru csv s nacitanou matici Variation
+   *
+   * Nacitani matice variaci.
+   */
+  def loadMatrixVariation (fileName: String) : Any = {
+
+    val source = io.Source.fromFile(fileName)
+
+    var i = 0
+    for  (line <- source.getLines) {
+      val lineSegment = line.split(";").map(_.trim).map(_.replaceFirst("," , "."))//.map(_.toDouble)
+      variation (i) = lineSegment
+      i += 1
+    }
+    source.close
+  }
+
+  /**
+   *
+   * @param matrix
+   * @param rows
+   * @param columns
+   *
+   * Tiskne zadanou matici se zadanym poctem radku a sloupcu na obrazovku.
+   */
   def printMatrix(matrix: Array[Array[String]], rows: Int, columns: Int ) {
-
-    //var lengthOfArray = trafficVolume.length
-
-    //println(lengthOfArray)
 
     for (m <- 0 to rows){
       for (n <- 0 to columns){

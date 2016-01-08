@@ -9,13 +9,9 @@ object RoadLinkMain {
 
     val matrix = new RoadLinkTransport()
 
-
     matrix.loadMatrixVariation("Variation.csv")
     matrix.loadMatrix("RoadLinkLiberec.csv")
 
-    //matrix.createTrafficVolume()
-
-    //matrix.printTrafficVolumeMatrix(1, 6)
   }
 
 }
