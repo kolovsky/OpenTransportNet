@@ -7,7 +7,8 @@ import java.sql.Connection
 import OTN_RoadLink.OpenTransportNet.RoadLink.RoadLinkTransport
 
 object ImportTraffic {
-
+  //jdbc:postgresql://hostname:port/dbname
+  //jdbc:postgresql://gis.lesprojekt.cz:5432/osm2po
   var linkFileName: String = null
   var variationFileName: String = null
   var connection: Connection = null
@@ -21,9 +22,9 @@ object ImportTraffic {
     url = args(2)
     username = args(3)
     password = args(4)
-    //connect()
+    connect()
     startImport()
-    //connection.close()
+    connection.close()
   }
   def connect(): Unit ={
     try{
@@ -40,33 +41,50 @@ object ImportTraffic {
 
     val source = io.Source.fromFile(linkFileName)
 
+    var i = 0
     for  (linie <- source.getLines) {
       val radek = linie.split(";").map(_.trim).map(_.replaceFirst("," , "."))
-
+      /*if (i == 0){
+        val trafficVolume = computeObject.processFeature(radek)
+        //println("ssasas: "+ trafficVolume.length)
+        rowsTrafficImport(trafficVolume)
+        i = 1
+      }*/
       val trafficVolume = computeObject.processFeature(radek)
-      rowTrafficImport(trafficVolume)
+      rowsTrafficImport(trafficVolume)
+      i += 1
+      println(i)
 
 
     }
+
     source.close()
   }
-  def rowTrafficImport(rows: Array[Array[String]]): Unit ={
-    val groupFactor = 10
+  def rowsTrafficImport(rows: Array[Array[String]]): Unit ={
+    val sql_base = "INSERT INTO transport_network.trafficvolume(ID, roadLinkID, trafficVolume, trafficVolumeTimePeriod, fromTime, toTime, vehicleType) VALUES \n"
+    val groupFactor = 100
     var i = 0
-    var sql = "INSERT INTO road_network.traffic(ID, inspireID, trafficVolume, trafficVolumeTimePeriod, fromTime, toTime, vehicleType) VALUES \n"
-    for (row <- rows.slice(0, rows.length - 1)){
+    var sql = sql_base
+    for (row <- rows.slice(1, rows.length)){
       sql += getSQLRow(row) + ",\n"
       i += 1
-      if(i == groupFactor){
-        println(sql)
-        sql = "INSERT INTO road_network.traffic(ID, inspireID, trafficVolume, trafficVolumeTimePeriod, fromTime, toTime, vehicleType) VALUES \n"
+      if(i % groupFactor == 0){
+        sql = sql.substring(0,sql.length - 2) + ";"
+        //println(sql)
+        val statement = connection.prepareStatement(sql)
+        statement.executeUpdate()
+        sql = sql_base
         i = 0
       }
     }
-    /*val sql = "INSERT INTO ..."
-    val statement = connection.prepareStatement(sql)
-    statement.setString("aa")
-    statement.executeUpdate()*/
+    if (i > 0){
+      sql = sql.substring(0,sql.length - 2) + ";"
+      //println(sql)
+      val statement = connection.prepareStatement(sql)
+      statement.executeUpdate()
+    }
+
+
   }
   def getSQLRow(row: Array[String]): String ={
     var out = "("
@@ -80,7 +98,7 @@ object ImportTraffic {
     out += "'" + row(6) + "'"
 
     out += ")"
-
+    //println(out)
     return out
   }
 

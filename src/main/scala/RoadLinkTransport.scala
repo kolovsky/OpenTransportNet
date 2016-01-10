@@ -22,7 +22,7 @@ class RoadLinkTransport ()     {
    */
   def loadMatrix (fileName: String) = {
 
-    val source = io.Source.fromFile(fileName)
+    val source = io.Source.fromFile(fileName)("UTF-8")
 
     for  (line <- source.getLines) {
       val lineSegment = line.split(";").map(_.trim).map(_.replaceFirst("," , "."))//.map(_.toDouble)
@@ -155,7 +155,7 @@ class RoadLinkTransport ()     {
    */
   def loadMatrixVariation (fileName: String) : Any = {
 
-    val source = io.Source.fromFile(fileName)
+    val source = io.Source.fromFile(fileName)("UTF-8")
 
     var i = 0
     for  (line <- source.getLines) {
