@@ -9,8 +9,8 @@ object RoadLinkMain {
 
     val matrix = new RoadLinkTransport()
 
-    matrix.loadMatrixVariation("../RoadLink/Variation.csv ")
-    matrix.loadMatrix("../RoadLink/RoadLinkLiberec_new.csv")
+    matrix.loadMatrixVariation("Variation.csv ")
+    matrix.loadMatrix("RoadLinkLiberec.csv")
 
   }
 

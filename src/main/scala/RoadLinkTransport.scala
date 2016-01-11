@@ -63,7 +63,7 @@ class RoadLinkTransport ()     {
 
       nextRow(0) = idParameter.toString
       idParameter += 1
-      nextRow(1) = lineSegment (0)
+      nextRow(1) = lineSegment (2).substring(0,lineSegment(2).length - 3)
 
       val hourOfDay2: Int = dateTime.getHours
       var dayOfWeek2: Int = dateTime.getDay
@@ -89,7 +89,7 @@ class RoadLinkTransport ()     {
 
       trafficVolumeSingleFeature(i+1) = nextRow
     }
-    println("sumTrafficVolumeCheck: " + sumTrafficVolumeCheck/lineSegment(25).toDouble) //sumu vypoctu vydelim trafficVolume pro jeden prumerny den a mel bych dostat 7 (dnu v tydnu) (28 (dny v tydnu krat 4 mesice))
+    //println("sumTrafficVolumeCheck: " + sumTrafficVolumeCheck/lineSegment(25).toDouble) //sumu vypoctu vydelim trafficVolume pro jeden prumerny den a mel bych dostat 7 (dnu v tydnu) (28 (dny v tydnu krat 4 mesice))
     trafficVolumeSingleFeature
   }
 
@@ -129,7 +129,7 @@ class RoadLinkTransport ()     {
     var dateTime = dateFormat.parse("2000-01-01 00:00:00")
 
     secondRow(0) = idParameter.toString
-    secondRow(1) = lineSegment (0)
+    secondRow(1) = lineSegment (2).substring(0,lineSegment(2).length - 3)
     secondRow(2) = lineSegment (25)
     secondRow(3) = "day"
     secondRow(4) = dateFormat.format(dateTime)
@@ -155,7 +155,7 @@ class RoadLinkTransport ()     {
    */
   def loadMatrixVariation (fileName: String) : Any = {
 
-    val source = io.Source.fromFile(fileName)("UTF-8")
+    val source = io.Source.fromFile(fileName)
 
     var i = 0
     for  (line <- source.getLines) {
