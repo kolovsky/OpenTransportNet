@@ -75,6 +75,11 @@ class RoadLinkTransport ()     {
    * Zatim je vsechno povazovano za zimu.
    */
   def processFeature (lineSegment: Array [String] ) : Array[Array[String]] = {
+    if ((lineSegment (14) == "mainRoad" ||lineSegment (14) == "firstClass" || lineSegment  (14) == "secondClass" || lineSegment (14) == "thirdClass" ) && lineSegment (25).toDouble != 0) {/*vyhozeni 4/5 tridy a nulovych segmentu*/
+
+    }else{
+      return null
+    }
 
     var trafficVolumeSingleFeature = new Array[Array[String]]((1*24*7*4)+2) // zaklada matici Traffic Volume pro jeden prvek RoadLink
 
@@ -204,7 +209,7 @@ class RoadLinkTransport ()     {
    */
   def loadMatrixVariation (fileName: String) : Any = {
 
-    val source = io.Source.fromFile(fileName)
+    val source = io.Source.fromFile(fileName)("utf-8")
 
     var i = 0
     for  (line <- source.getLines) {
