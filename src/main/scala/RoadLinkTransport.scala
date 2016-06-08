@@ -63,6 +63,7 @@ class RoadLinkTransport (variationFileName: String, roadLinkFileName: String, na
    * true - podminky jsou splneny
    * false - podminky nejsem splneny
    */
+<<<<<<< HEAD
   def getConditions (lineSegment: Array[String]) : Boolean =  {
     if (lineSegment(indices(2)).toDouble == 0){ /*println("0: "+ lineSegment(indices(0)));*/ return false}
     else if (lineSegment(indices(1)) == "fourthClass"){ /*println("fourthClass: "+ lineSegment(indices(0)));*/ return false}
@@ -80,6 +81,14 @@ class RoadLinkTransport (variationFileName: String, roadLinkFileName: String, na
   def processFeature () : Array[Array[String]] = {
 
     val lineSegment = line.next().split(";").map(_.trim).map(_.replaceFirst("," , "."))
+=======
+  def processFeature (lineSegment: Array [String] ) : Array[Array[String]] = {
+    if ((lineSegment (14) == "mainRoad" ||lineSegment (14) == "firstClass" || lineSegment  (14) == "secondClass" || lineSegment (14) == "thirdClass" ) && lineSegment (25).toDouble != 0) {/*vyhozeni 4/5 tridy a nulovych segmentu*/
+
+    }else{
+      return null
+    }
+>>>>>>> fb80efbe612da419a7557b7c1bf4cf60e5760229
 
     var trafficVolumeSingleFeature = new Array[Array[String]]((1*24*7*4)+2) // zaklada matici Traffic Volume pro jeden prvek RoadLink
 
@@ -229,7 +238,11 @@ class RoadLinkTransport (variationFileName: String, roadLinkFileName: String, na
    */
   def loadMatrixVariation () : Any = {
 
+<<<<<<< HEAD
     val source = io.Source.fromFile(variationFileName)
+=======
+    val source = io.Source.fromFile(fileName)("utf-8")
+>>>>>>> fb80efbe612da419a7557b7c1bf4cf60e5760229
 
     var i = 0
     for  (line <- source.getLines()) {

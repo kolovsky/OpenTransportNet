@@ -51,7 +51,10 @@ object ImportTraffic {/*
         i = 1
       }*/
       val trafficVolume = computeObject.processFeature(radek)
-      rowsTrafficImport(trafficVolume)
+      if(trafficVolume != null){
+        rowsTrafficImport(trafficVolume)
+      }
+
       i += 1
       println(i)
 
@@ -89,7 +92,7 @@ object ImportTraffic {/*
   def getSQLRow(row: Array[String]): String ={
     var out = "("
 
-    out += row(0) + ", "
+    out += (row(0).toInt + 25181641) + ", " //paris 13912256,liberec 21561574 antwerp
     out += row(1) + ", "
     out += row(2) + ", "
     out += "'" + row(3) + "', "
