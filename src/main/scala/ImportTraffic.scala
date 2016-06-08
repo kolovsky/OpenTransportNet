@@ -6,7 +6,7 @@ import java.sql.Connection
 
 import OTN_RoadLink.OpenTransportNet.RoadLink.RoadLinkTransport
 
-object ImportTraffic {
+object ImportTraffic {/*
   //jdbc:postgresql://hostname:port/dbname
   //jdbc:postgresql://gis.lesprojekt.cz:5432/osm2po
   var linkFileName: String = null
@@ -43,7 +43,7 @@ object ImportTraffic {
 
     var i = 0
     for  (linie <- source.getLines) {
-      val radek = linie.split(";").map(_.trim).map(_.replaceFirst("," , "."))
+        val radek = linie.split(";").map(_.trim).map(_.replaceFirst("," , "."))
       /*if (i == 0){
         val trafficVolume = computeObject.processFeature(radek)
         //println("ssasas: "+ trafficVolume.length)
@@ -101,5 +101,5 @@ object ImportTraffic {
     //println(out)
     return out
   }
-
+*/
 }
