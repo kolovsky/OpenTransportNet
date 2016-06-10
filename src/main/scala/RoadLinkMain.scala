@@ -2,7 +2,7 @@ package OTN_RoadLink.OpenTransportNet.RoadLink
 
 import java.io.{FileOutputStream, OutputStreamWriter, BufferedWriter, FileWriter}
 
-import OpenTransportNet.src.main.scala.Testing_methods
+//import OpenTransportNet.src.main.scala.Testing_methods
 
 object RoadLinkMain {
 
