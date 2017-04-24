@@ -1,5 +1,7 @@
 /**
  * Created by kolovsky on 6.1.16.
+  * example running parametry
+  * volume.csv variation.csv jdbc:postgresql://host:port/db?user=user&password=pass table_name
  */
 import java.sql.DriverManager
 import java.sql.Connection
@@ -14,11 +16,13 @@ object ImportTraffic {
   var username: String = null
   var password: String = null
   var url: String = null
+  var tableName: String = null
 
   def main(args: Array[String]) {
     linkFileName = args(0)
     variationFileName = args(1)
     url = args(2)
+    tableName = args(3)
     connect()
     startImport()
     connection.close()
@@ -32,7 +36,12 @@ object ImportTraffic {
     }
 
   }
-  def startImport(): Unit ={
+  def startImport(): Unit = {
+    //clear table
+    val sql_clear = connection.prepareStatement("TRUNCATE "+tableName+";")
+    sql_clear.executeUpdate()
+
+    // create compure object #################### TADY TO UPRAV DNE TEHO NOVEHO KODU ###################
     val computeObject = new RoadLinkTransport(variationFileName, linkFileName, "FID","roadClass","VOL_DAY_KM",0)
 
     var i = 0
@@ -47,7 +56,7 @@ object ImportTraffic {
     }
   }
   def rowsTrafficImport(rows: Array[Array[String]]): Unit ={
-    val sql_base = "INSERT INTO transport_network.trafficvolume_plzen_KM(ID, roadLinkID, trafficVolume, trafficVolumeTimePeriod, fromTime, toTime, vehicleType) VALUES \n"
+    val sql_base = "INSERT INTO " + tableName + "(ID, roadLinkID, trafficVolume, trafficVolumeTimePeriod, fromTime, toTime, vehicleType) VALUES \n"
     val groupFactor = 1000
     var i = 0
     var sql = sql_base
